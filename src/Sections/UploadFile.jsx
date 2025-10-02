@@ -1,66 +1,26 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { addFile } from "../Functions/AllFunctions";
 
-export default function UploadFileToPinata({ onFileAdded, currentAccount }) {
+export default function UploadFile({ onFileAdded, currentAccount }) {
   const [title, setTitle] = useState("");
-  const [file, setFile] = useState(null);
-  const [uploading, setUploading] = useState(false);
+  const [cid, setCid] = useState("");
   const [showForm, setShowForm] = useState(false);
 
-  const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
-  };
-
-  // Vite env variables
-  const apiKey = import.meta.env.VITE_PINATA_API_KEY;
-  const secretKey = import.meta.env.VITE_PINATA_SECRET_KEY;
-
   const handleUpload = async () => {
-    if (!file || !title) return alert("Select a file and enter title");
-    setUploading(true);
-
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-
-      // Upload to Pinata
-      const res = await axios.post(
-        "https://api.pinata.cloud/pinning/pinFileToIPFS",
-        formData,
-        {
-          maxBodyLength: "Infinity",
-          headers: {
-            "Content-Type": "multipart/form-data",
-            pinata_api_key: apiKey,
-            pinata_secret_api_key: secretKey,
-          },
-        }
-      );
-
-      const cid = res.data.IpfsHash;
-      const ipfsURL = `https://gateway.pinata.cloud/ipfs/${cid}`;
-
-      // Add to smart contract
-      await addFile(ipfsURL, title);
-
-      alert("File uploaded and added to contract!");
-      setTitle("");
-      setFile(null);
-      setShowForm(false);
-      onFileAdded();
-    } catch (err) {
-      console.error(err);
-      alert("Upload failed!");
-    } finally {
-      setUploading(false);
-    }
+    if (!cid || !title) return alert("Enter CID & title");
+    const ipfsURL = `https://gateway.pinata.cloud/ipfs/${cid}`;
+    await addFile(ipfsURL, title);
+    alert("File added!");
+    setCid("");
+    setTitle("");
+    setShowForm(false);
+    onFileAdded();
   };
 
   return (
     <div style={styles.container}>
       <div style={styles.left}>
-        <h2 style={styles.heading}>Upload File from Computer</h2>
+        <h2 style={styles.heading}>Add file by CID</h2>
 
         {!showForm && (
           <button style={styles.addButton} onClick={() => setShowForm(true)}>
@@ -70,7 +30,12 @@ export default function UploadFileToPinata({ onFileAdded, currentAccount }) {
 
         {showForm && (
           <div style={styles.form}>
-            <input type="file" onChange={handleFileChange} style={styles.input} />
+            <input
+              placeholder="Enter IPFS CID"
+              value={cid}
+              onChange={(e) => setCid(e.target.value)}
+              style={styles.input}
+            />
             <input
               placeholder="File title"
               value={title}
@@ -78,10 +43,13 @@ export default function UploadFileToPinata({ onFileAdded, currentAccount }) {
               style={styles.input}
             />
             <div style={styles.buttonGroup}>
-              <button style={styles.uploadButton} onClick={handleUpload} disabled={uploading}>
-                {uploading ? "Uploading..." : "Upload"}
+              <button style={styles.uploadButton} onClick={handleUpload}>
+                Upload
               </button>
-              <button style={styles.cancelButton} onClick={() => setShowForm(false)}>
+              <button
+                style={styles.cancelButton}
+                onClick={() => setShowForm(false)}
+              >
                 Cancel
               </button>
             </div>
@@ -172,7 +140,7 @@ const styles = {
   },
 };
 
-/* ✅ Responsive styles (media queries) */
+/* ✅ Responsive styles */
 const styleSheet = document.createElement("style");
 styleSheet.innerHTML = `
   @media (max-width: 768px) {
@@ -182,9 +150,6 @@ styleSheet.innerHTML = `
   }
 
   @media (max-width: 480px) {
-    .upload-container {
-      padding: 10px !important;
-    }
     h2 { font-size: 0.9rem !important; }
     button { font-size: 12px !important; padding: 6px !important; }
     input { font-size: 12px !important; }

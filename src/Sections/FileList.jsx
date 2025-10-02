@@ -59,9 +59,21 @@ export default function FileList({ files, reloadFiles }) {
     }
 
     if (type.startsWith("image")) {
-      return <img src={file.path} alt={file.title} style={{ width: "100%", height, objectFit: "cover" }} />;
+      return (
+        <img
+          src={file.path}
+          alt={file.title}
+          style={{ width: "100%", height, objectFit: "cover" }}
+        />
+      );
     } else if (type === "application/pdf") {
-      return <iframe src={file.path} title={file.title} style={{ width: "100%", height, border: "none" }} />;
+      return (
+        <iframe
+          src={file.path}
+          title={file.title}
+          style={{ width: "100%", height: "100%", border: "none" }}
+        />
+      );
     } else {
       return (
         <div
@@ -77,7 +89,12 @@ export default function FileList({ files, reloadFiles }) {
             textAlign: "center",
           }}
         >
-          <a href={file.path} target="_blank" rel="noopener noreferrer" style={{ color: "#1976d2" }}>
+          <a
+            href={file.path}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: "#1976d2" }}
+          >
             Download {file.title}
           </a>
         </div>
@@ -91,14 +108,7 @@ export default function FileList({ files, reloadFiles }) {
       <button onClick={reloadFiles}>Load My Files</button>
 
       {/* File grid */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-          gap: "20px",
-          marginTop: "20px",
-        }}
-      >
+      <div className="file-grid">
         {files.map((f) => (
           <div
             key={f.id}
@@ -206,11 +216,13 @@ export default function FileList({ files, reloadFiles }) {
             style={{
               background: "#fff",
               padding: "20px",
-              maxWidth: "90%",
-              maxHeight: "90%",
-              overflow: "auto",
+              width: "80%",
+              height: "80%",
+              overflow: "hidden",
               position: "relative",
               borderRadius: "8px",
+              display: "flex",
+              flexDirection: "column",
             }}
           >
             {/* Top-right share/delete */}
@@ -227,7 +239,10 @@ export default function FileList({ files, reloadFiles }) {
               <button onClick={handleDelete}>Delete</button>
             </div>
 
-            {renderPreview(selectedFile, "70vh")}
+            {/* File preview */}
+            <div style={{ flex: 1, width: "100%" }}>
+              {renderPreview(selectedFile, "100%")}
+            </div>
 
             <p style={{ marginTop: "15px", fontWeight: "bold" }}>{selectedFile.title}</p>
             <small style={{ display: "block" }}>ID: {selectedFile.id}</small>
@@ -243,6 +258,7 @@ export default function FileList({ files, reloadFiles }) {
                 border: "none",
                 borderRadius: "6px",
                 cursor: "pointer",
+                alignSelf: "flex-start",
               }}
             >
               Close
@@ -250,6 +266,26 @@ export default function FileList({ files, reloadFiles }) {
           </div>
         </div>
       )}
+
+      {/* Responsive grid styles */}
+      <style>{`
+        .file-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 20px;
+          margin-top: 20px;
+        }
+        @media (max-width: 1024px) {
+          .file-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+        }
+        @media (max-width: 600px) {
+          .file-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+      `}</style>
     </div>
   );
 }

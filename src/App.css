@@ -1,0 +1,43 @@
+/* Base App Styles */
+.app-container {
+  padding: 20px;
+}
+
+/* Upload Section Layout */
+.upload-section {
+  display: flex;
+  gap: 20px;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+/* Make child components adapt */
+.upload-section > * {
+  flex: 1;
+  min-width: 280px; /* prevents squishing on small screens */
+  max-width: 48%;
+}
+
+/* Responsive Breakpoints */
+
+/* Medium screens (tablets) */
+@media (max-width: 900px) {
+  .upload-section {
+    justify-content: center;
+  }
+  .upload-section > * {
+    max-width: 100%;
+  }
+}
+
+/* Small screens (phones) */
+@media (max-width: 600px) {
+  .upload-section {
+    flex-direction: column;
+    gap: 15px;
+  }
+  .upload-section > * {
+    max-width: 100%;
+  }
+}
